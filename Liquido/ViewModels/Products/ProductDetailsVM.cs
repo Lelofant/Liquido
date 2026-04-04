@@ -1,4 +1,6 @@
-﻿namespace Liquido.ViewModels.Products
+﻿using Liquido.ViewModels.Reviews;
+
+namespace Liquido.ViewModels.Products
 {
     public class ProductDetailsVM
     {
@@ -14,5 +16,8 @@
         public bool InStock => StockQuantity > 0;
         public double AverageRating { get; set; }
 
+        public IEnumerable<ReviewsVM> Reviews { get; set; } = new List<ReviewsVM>();
+
+        public ReviewsFormVM ReviewForm { get; set; } = new ReviewsFormVM();
     }
 }
