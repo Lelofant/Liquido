@@ -1,32 +1,35 @@
-using System.Diagnostics;
-using Liquido.Models;
+using Liquido.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Liquido.Controllers
+namespace Liquido.Web.Controllers;
+
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    private readonly IProductService _productService;
+
+    public HomeController(IProductService productService)
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        _productService = productService;
     }
+
+    public async Task<IActionResult> Index()
+    {
+        var featured = await _productService.GetFeaturedAsync(6);
+        return View(featured);
+    }
+
+    public IActionResult About()
+    {
+        return View();
+    }
+
+    [Route("Home/Error/{statusCode?}")]
+    public IActionResult Error(int? statusCode)
+    {
+        if (statusCode == 404)
+            return View("Error404");
+
+        return View("Error");
+    }
+
 }
