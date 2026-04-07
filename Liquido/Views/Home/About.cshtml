@@ -1,0 +1,87 @@
+﻿@{
+    ViewData["Title"] = "About Us";
+}
+
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <p class="text-primary fw-semibold text-uppercase mb-2"
+                   style="letter-spacing: 2px; font-size: 0.85rem;">
+                    Our Story
+                </p>
+                <h2 class="section-title mb-4">
+                    Pure Water,<br />Pure Living
+                </h2>
+                <p class="text-muted mb-3">
+                    Liquido was born from a simple belief — everyone deserves
+                    access to clean, pure water without the hassle of carrying
+                    heavy bottles from the store.
+                </p>
+                <p class="text-muted mb-4">
+                    We source directly from certified Bulgarian mountain springs,
+                    ensuring every drop that reaches your door is as pure as
+                    nature intended.
+                </p>
+                <a asp-controller="Products"
+                   asp-action="Index"
+                   class="btn btn-liquido">
+                    <i class="bi bi-droplet me-2"></i>Browse Our Products
+                </a>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="rounded-liquido p-4 text-center h-100"
+                             style="background-color: var(--liquido-light-cyan);">
+                            <i class="bi bi-droplet-fill fs-1 mb-2"
+                               style="color: var(--liquido-blue);"></i>
+                            <div class="fw-bold fs-3"
+                                 style="color: var(--liquido-blue);">
+                                500+
+                            </div>
+                            <small class="text-muted">Customers Served</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="rounded-liquido p-4 text-center h-100"
+                             style="background-color: var(--liquido-light-cyan);">
+                            <i class="bi bi-geo-alt-fill fs-1 mb-2"
+                               style="color: var(--liquido-blue);"></i>
+                            <div class="fw-bold fs-3"
+                                 style="color: var(--liquido-blue);">
+                                5
+                            </div>
+                            <small class="text-muted">Spring Sources</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="rounded-liquido p-4 text-center h-100"
+                             style="background-color: var(--liquido-light-cyan);">
+                            <i class="bi bi-truck fs-1 mb-2"
+                               style="color: var(--liquido-blue);"></i>
+                            <div class="fw-bold fs-3"
+                                 style="color: var(--liquido-blue);">
+                                24h
+                            </div>
+                            <small class="text-muted">Delivery Time</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="rounded-liquido p-4 text-center h-100"
+                             style="background-color: var(--liquido-light-cyan);">
+                            <i class="bi bi-award-fill fs-1 mb-2"
+                               style="color: var(--liquido-blue);"></i>
+                            <div class="fw-bold fs-3"
+                                 style="color: var(--liquido-blue);">
+                                100%
+                            </div>
+                            <small class="text-muted">Certified Pure</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
