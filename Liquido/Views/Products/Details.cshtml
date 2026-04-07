@@ -1,0 +1,286 @@
+﻿@model Liquido.ViewModels.Products.ProductDetailsVM
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<section class="py-5">
+    <div class="container">
+
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Home" asp-action="Index">Home</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-controller="Products" asp-action="Index">Products</a>
+                </li>
+                <li class="breadcrumb-item active">@Model.Name</li>
+            </ol>
+        </nav>
+
+        <div class="row g-5">
+
+            <div class="col-lg-5">
+                <div class="rounded-liquido overflow-hidden bg-light
+                            d-flex align-items-center justify-content-center"
+                     style="min-height:380px;">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl"
+                             alt="@Model.Name"
+                             class="img-fluid"
+                             style="max-height:380px; object-fit:cover;" />
+                    }
+                    else
+                    {
+                        <i class="bi bi-droplet text-primary"
+                           style="font-size:8rem; opacity:0.2;"></i>
+                    }
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <span class="badge bg-light text-primary border border-primary mb-2">
+                    @Model.CategoryName
+                </span>
+
+                <h1 class="fw-bold mb-1" style="font-size:2rem;">@Model.Name</h1>
+
+                @if (!string.IsNullOrEmpty(Model.Volume))
+                {
+                    <p class="text-muted mb-2">Volume: @Model.Volume</p>
+                }
+
+                @if (Model.Reviews.Any())
+                {
+                    <div class="star-rating mb-3 d-flex align-items-center gap-2">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <i class="bi @(i <= Math.Round(Model.AverageRating) ? "bi-star-fill" : "bi-star empty")"></i>
+                                        }
+                        <span class="text-muted" style="font-size:0.9rem;">
+                            @Model.AverageRating.ToString("F1") (@Model.Reviews.Count() reviews)
+                        </span>
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <span class="price-tag" style="font-size:2rem;">
+                        @Model.Price.ToString("F2") euro.
+                    </span>
+                </div>
+
+                @if (Model.InStock)
+                {
+                    <span class="badge bg-success-subtle text-success
+                                     border border-success mb-3">
+                        <i class="bi bi-check-circle me-1"></i>
+                        In Stock (@Model.StockQuantity available)
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-danger-subtle text-danger
+                                     border border-danger mb-3">
+                        <i class="bi bi-x-circle me-1"></i>Out of Stock
+                    </span>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <p class="text-muted my-3">@Model.Description</p>
+                }
+
+                @if (Model.InStock)
+                {
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <form asp-controller="Cart"
+                              asp-action="Add"
+                              method="post"
+                              class="d-flex align-items-center gap-3 mt-4">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@Model.Id" />
+
+                            <div class="d-flex align-items-center border rounded-3 overflow-hidden">
+                                <button type="button"
+                                        class="btn btn-light px-3 border-0"
+                                        onclick="changeQty(-1)">
+                                    <i class="bi bi-dash"></i>
+                                </button>
+                                <input type="number"
+                                       name="quantity"
+                                       id="qtyInput"
+                                       value="1"
+                                       min="1"
+                                       max="@Model.StockQuantity"
+                                       class="form-control border-0 text-center qty-input"
+                                       style="width:60px;" />
+                                <button type="button"
+                                        class="btn btn-light px-3 border-0"
+                                        onclick="changeQty(1)">
+                                    <i class="bi bi-plus"></i>
+                                </button>
+                            </div>
+
+                            <button type="submit" class="btn btn-liquido px-4 py-2">
+                                <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account"
+                           asp-action="Login"
+                           class="btn btn-liquido mt-4 px-4 py-2">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>
+                            Login to Add to Cart
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-12">
+                <hr />
+                <h4 class="fw-bold mb-4">
+                    <i class="bi bi-chat-square-text me-2 text-primary"></i>
+                    Customer Reviews
+                </h4>
+
+                @if (!Model.Reviews.Any())
+                {
+                    <p class="text-muted">
+                        No reviews yet. Be the first to review this product!
+                    </p>
+                }
+                else
+                {
+                    <div class="row g-3 mb-4">
+                        @foreach (var review in Model.Reviews)
+                        {
+                            <div class="col-md-6">
+                                <div class="card border-0 bg-light rounded-liquido p-3">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <strong>@review.UserName</strong>
+                                            <div class="star-rating">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    <i class="bi @(i <= review.Rating? "bi-star-fill" : "bi-star empty")"></i>
+                                                }
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">
+                                            @review.CreatedAt.ToString("dd MMM yyyy")
+                                        </small>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(review.Comment))
+                                    {
+                                        <p class="mb-0 text-muted">@review.Comment</p>
+                                    }
+
+                                    @if (review.IsOwnReview)
+                                    {
+                                        <form asp-controller="Reviews"
+                                              asp-action="Delete"
+                                              method="post"
+                                              class="mt-2">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden"
+                                                   name="reviewId"
+                                                   value="@review.Id" />
+                                            <input type="hidden"
+                                                   name="productId"
+                                                   value="@Model.Id" />
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    data-confirm="Delete your review?">
+                                                <i class="bi bi-trash me-1"></i>Delete
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="card border-0 shadow-sm rounded-liquido p-4 mt-3">
+                        <h5 class="fw-bold mb-3">Leave a Review</h5>
+                        <form asp-controller="Reviews"
+                              asp-action="Create"
+                              method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden"
+                                   name="ProductId"
+                                   value="@Model.ReviewForm.ProductId" />
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Rating</label>
+                                <div class="d-flex gap-2">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input"
+                                                   type="radio"
+                                                   name="Rating"
+                                                   value="@i"
+                                                   id="star@i" />
+                                            <label class="form-check-label"
+                                                   for="star@i">
+                                                @i <i class="bi bi-star-fill text-warning"></i>
+                                            </label>
+                                        </div>
+                                    }
+                                </div>
+                                <span asp-validation-for="ReviewForm.Rating"
+                                      class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    Comment (optional)
+                                </label>
+                                <textarea name="Comment"
+                                      class="form-control"
+                                      rows="3"
+                                      maxlength="1000"
+                                      placeholder="Share your experience...">
+                                </textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-liquido">
+                                <i class="bi bi-send me-2"></i>Submit Review
+                            </button>
+                        </form>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-light border">
+                        <a asp-controller="Account"
+                           asp-action="Login"
+                           class="text-primary fw-semibold">Login</a>
+                        to leave a review.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        function changeQty(delta) {
+            const input = document.getElementById('qtyInput');
+            const max   = parseInt(input.getAttribute('max'));
+            let val     = parseInt(input.value) + delta;
+            if (val < 1)   val = 1;
+            if (val > max) val = max;
+            input.value = val;
+        }
+    </script>
+}
