@@ -1,0 +1,96 @@
+﻿@model IEnumerable<Liquido.ViewModels.Orders.OrderSummaryVM>
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<section class="py-5">
+    <div class="container">
+        <h2 class="fw-bold mb-4">
+            <i class="bi bi-bag me-2 text-primary"></i>My Orders
+        </h2>
+        @if (TempData["Success"] is string success)
+        {
+            <div class="alert alert-success alert-dismissible fade show">
+                <i class="bi bi-check-circle me-2"></i>@success
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-bag-x"
+                   style="font-size:5rem; color:var(--liquido-blue); opacity:0.2;"></i>
+                <h4 class="mt-3 text-muted">No orders yet</h4>
+                <p class="text-muted">Start shopping to see your orders here.</p>
+                <a asp-controller="Products"
+                   asp-action="Index"
+                   class="btn btn-liquido mt-2">
+                    <i class="bi bi-grid me-2"></i>Browse Products
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="d-flex flex-column gap-3">
+                @foreach (var order in Model)
+                {
+                    <div class="card border-0 shadow-sm rounded-liquido">
+                        <div class="card-body">
+                            <div class="d-flex flex-wrap justify-content-between
+                                                align-items-start mb-3 gap-2">
+                                <div>
+                                    <h6 class="fw-bold mb-1">
+                                        Order #@order.Id
+                                    </h6>
+                                    <small class="text-muted">
+                                        Placed on @order.CreatedAt.ToString("dd MMM yyyy HH:mm")
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge @order.StatusBadgeClass px-3 py-2">
+                                        @order.StatusDisplay
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-wrap gap-3 mb-3">
+                                @foreach (var item in order.Items)
+                                {
+                                    <div class="d-flex align-items-center gap-2"
+                                         style="font-size:0.9rem;">
+                                        <i class="bi bi-droplet text-primary"></i>
+                                        <span>@item.ProductName</span>
+                                        <span class="text-muted">×@item.Quantity</span>
+                                    </div>
+                                }
+                            </div>
+                            <div class="d-flex flex-wrap justify-content-between
+                                                align-items-center pt-2 border-top gap-2">
+                                <div class="d-flex gap-3">
+                                    <div>
+                                        <small class="text-muted d-block">Total</small>
+                                        <strong style="color:var(--liquido-blue);">
+                                            @order.TotalPrice.ToString("F2") euro.
+                                        </strong>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">
+                                            Points Earned
+                                        </small>
+                                        <strong class="text-success">
+                                            +@order.LoyalityPointsEarned
+                                        </strong>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <small class="text-muted d-block">Ship to</small>
+                                    <small>@order.ShippingAddress</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>
