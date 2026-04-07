@@ -1,0 +1,110 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-liquido p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted small mb-1">Total Orders</div>
+                    <div class="fw-bold fs-3">@ViewBag.TotalOrders</div>
+                </div>
+                <i class="bi bi-bag-fill fs-1"
+                   style="color:var(--liquido-blue); opacity:0.3;"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-liquido p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted small mb-1">Active Products</div>
+                    <div class="fw-bold fs-3">@ViewBag.TotalProducts</div>
+                </div>
+                <i class="bi bi-box-seam-fill fs-1"
+                   style="color:var(--liquido-blue); opacity:0.3;"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-liquido p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted small mb-1">Total Users</div>
+                    <div class="fw-bold fs-3">@ViewBag.TotalUsers</div>
+                </div>
+                <i class="bi bi-people-fill fs-1"
+                   style="color:var(--liquido-blue); opacity:0.3;"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-liquido p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted small mb-1">Total Revenue</div>
+                    <div class="fw-bold fs-3">
+                        @(((decimal)ViewBag.TotalRevenue).ToString("F2")) euro.
+                    </div>
+                </div>
+                <i class="bi bi-cash-stack fs-1"
+                   style="color:var(--liquido-blue); opacity:0.3;"></i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card border-0 shadow-sm rounded-liquido">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0">Recent Orders</h6>
+            <a asp-area="Admin"
+               asp-controller="Orders"
+               asp-action="Index"
+               class="btn btn-sm btn-outline-primary">
+                View All
+            </a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in ViewBag.RecentOrders)
+                    {
+                        <tr>
+                            <td>@order.Id</td>
+                            <td>@order.User?.Email</td>
+                            <td>@order.CreatedAt.ToString("dd MMM yyyy")</td>
+                            <td>@order.TotalPrice.ToString("F2") euro.</td>
+                            <td>
+                                <span class="badge bg-warning text-dark">
+                                    @order.Status
+                                </span>
+                            </td>
+                            <td>
+                                <a asp-area="Admin"
+                                   asp-controller="Orders"
+                                   asp-action="Details"
+                                   asp-route-id="@order.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
