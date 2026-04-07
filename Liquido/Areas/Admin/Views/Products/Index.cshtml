@@ -1,0 +1,95 @@
+﻿@model Liquido.ViewModels.Products.ProductListVM
+@{
+    ViewData["Title"] = "Manage Products";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+} 
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="fw-bold mb-0">All Products (@Model.TotalCount)</h5>
+    <a asp-area="Admin"
+       asp-controller="Products"
+       asp-action="Create"
+       class="btn btn-liquido">
+        <i class="bi bi-plus-lg me-2"></i>Add Product
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm rounded-liquido">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Product</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in Model.Products)
+                    {
+                        <tr class="align-middle">
+                            <td class="ps-4">
+                                <div class="fw-semibold">@product.Name</div>
+                                @if (!string.IsNullOrEmpty(product.Volume))
+                                {
+                                    <small class="text-muted">@product.Volume</small>
+                                }
+                            </td>
+                            <td>@product.CategoryName</td>
+                            <td>@product.Price.ToString("F2") euro.</td>
+                            <td>
+                                @if (product.InStock)
+                                {
+                                    <span class="text-success fw-semibold">
+                                        @product.StockQuantity
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger fw-semibold">0</span>
+                                }
+                            </td>
+                            <td>
+                                @if (product.InStock)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Out of Stock</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a asp-area="Admin"
+                                       asp-controller="Products"
+                                       asp-action="Edit"
+                                       asp-route-id="@product.Id"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form asp-area="Admin"
+                                          asp-controller="Products"
+                                          asp-action="Delete"
+                                          method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@product.Id" />
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-danger"
+                                                data-confirm="Delete '@product.Name'?">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
