@@ -12,6 +12,7 @@ namespace Liquido.Models
 
         public int LoyaltyPoints { get; set; } = 0;
 
+
         public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
 
         public bool IsActive { get; set; } = true;
