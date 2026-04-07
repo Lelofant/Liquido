@@ -1,0 +1,108 @@
+﻿@model Liquido.ViewModels.Orders.OrderSummaryVM
+@{
+    ViewData["Title"] = $"Order #{Model.Id}";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-liquido p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h5 class="fw-bold">Order #@Model.Id</h5>
+                    <small class="text-muted">
+                        @Model.CreatedAt.ToString("dd MMM yyyy HH:mm")
+                    </small>
+                </div>
+                <span class="badge @Model.StatusBadgeClass px-3 py-2 fs-6">
+                    @Model.StatusDisplay
+                </span>
+            </div>
+            <div class="mb-3">
+                <strong>Customer:</strong> @Model.CustomerName
+                (@Model.CustomerEmail)
+            </div>
+            <div class="mb-3">
+                <strong>Ship to:</strong> @Model.ShippingAddress
+            </div>
+            @if (!string.IsNullOrEmpty(Model.Notes))
+            {
+                <div>
+                    <strong>Notes:</strong> @Model.Notes
+                </div>
+            }
+        </div>
+        <div class="card border-0 shadow-sm rounded-liquido p-4">
+            <h6 class="fw-bold mb-3">Order Items</h6>
+            <table class="table mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Product</th>
+                        <th class="text-center">Qty</th>
+                        <th class="text-center">Unit Price</th>
+                        <th class="text-center">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                @item.ProductName
+                                @if (!string.IsNullOrEmpty(item.Volume))
+                                {
+                                    <small class="text-muted ms-1">@item.Volume</small>
+                                }
+                            </td>
+                            <td class="text-center">@item.Quantity</td>
+                            <td class="text-center">@item.Price.ToString("F2") euro.</td>
+                            <td class="text-center fw-semibold">
+                                @item.SubTotal.ToString("F2") euro.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end fw-bold">Total:</td>
+                        <td class="text-center fw-bold"
+                            style="color:var(--liquido-blue);">
+                            @Model.TotalPrice.ToString("F2") euro.
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-liquido p-4">
+            <h6 class="fw-bold mb-3">Update Status</h6>
+            <form asp-area="Admin"
+                  asp-controller="Orders"
+                  asp-action="UpdateStatus"
+                  method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="orderId" value="@Model.Id" />
+                <select name="status" class="form-select mb-3">
+                    @foreach (var status in Enum.GetNames(typeof(Liquido.Models.Enums.OrderStatus)))
+                    {
+                        <option value="@status"
+                                selected="@(Model.StatusDisplay == status)">
+                            @status
+                        </option>
+                    }
+                </select>
+                <button type="submit" class="btn btn-liquido w-100">
+                    <i class="bi bi-arrow-repeat me-2"></i>Update Status
+                </button>
+            </form>
+            <hr />
+            <a asp-area="Admin"
+               asp-controller="Orders"
+               asp-action="Index"
+               class="btn btn-outline-secondary w-100">
+                <i class="bi bi-arrow-left me-2"></i>Back to Orders
+            </a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,54 @@
+﻿@model IEnumerable<Liquido.ViewModels.Orders.OrderSummaryVM>
+@{
+    ViewData["Title"] = "Manage Orders";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="card border-0 shadow-sm rounded-liquido">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">#</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr class="align-middle">
+                            <td class="ps-4 fw-semibold">@order.Id</td>
+                            <td>
+                                <div>@order.CustomerName</div>
+                                <small class="text-muted">@order.CustomerEmail</small>
+                            </td>
+                            <td>@order.CreatedAt.ToString("dd MMM yyyy")</td>
+                            <td class="fw-semibold">
+                                @order.TotalPrice.ToString("F2") euro.
+                            </td>
+                            <td>
+                                <span class="badge @order.StatusBadgeClass">
+                                    @order.StatusDisplay
+                                </span>
+                            </td>
+                            <td>
+                                <a asp-area="Admin"
+                                   asp-controller="Orders"
+                                   asp-action="Details"
+                                   asp-route-id="@order.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye me-1"></i>View
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
