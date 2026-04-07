@@ -2,6 +2,7 @@
 using Liquido.Models;
 using Liquido.Services.Interfaces;
 using Liquido.ViewModels.Products;
+using Liquido.ViewModels.Reviews;
 using Microsoft.EntityFrameworkCore;
 
 namespace Liquido.Services
@@ -13,16 +14,23 @@ namespace Liquido.Services
 
         public ProductService(ApplicationDbContext context, ICategoryService categoryService)
         {
-            this._context = context;
-            this._categoryService = categoryService;
+            _context = context;
+            _categoryService = categoryService;
         }
 
-        public async Task<ProductListVM> GetProductAsync(string? searchTerm, int? categoryId, decimal? minPrice, decimal? maxPrice, int page, int pageSize)
+        public async Task<ProductListVM> GetPagedAsync(
+            string? searchTerm,
+            int? categoryId,
+            decimal? minPrice,
+            decimal? maxPrice,
+            int page,
+            int pageSize)
         {
-            var query = _context.Products.Include(p => p.Category)
-                                        .Include(p => p.Reviews)
-                                        .Where(p => p.IsActive)
-                                        .AsQueryable();
+            var query = _context.Products
+                                .Include(p => p.Category)
+                                .Include(p => p.Reviews)
+                                .Where(p => p.IsActive)
+                                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
@@ -44,22 +52,25 @@ namespace Liquido.Services
 
             var totalCount = await query.CountAsync();
 
-            var products = await query.OrderBy(p => p.Name)
-                                      .Skip((page - 1) * pageSize)
-                                      .Take(pageSize)
-                                      .Select(p => new ProductVM
-                                      {
-                                          Id = p.Id,
-                                          Name = p.Name,
-                                          Price = p.Price,
-                                          Volume = p.Volume,
-                                          ImageUrl = p.ImageUrl,
-                                          CategoryName = p.Category.Name,
-                                          StockQuantity = p.StockQuantity,
-                                          AverageRating = p.Reviews.Any(r => r.IsApproved) ? p.Reviews.Where(r => r.IsApproved)
-                                                                                    .Average(r => r.Rating) : 0,
-                                          ReviewCount = p.Reviews.Count(r => r.IsApproved)
-                                      }).ToListAsync();
+            var products = await query
+                .OrderBy(p => p.Name)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new ProductVM
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    Volume = p.Volume,
+                    ImageUrl = p.ImageUrl,
+                    CategoryName = p.Category.Name,
+                    StockQuantity = p.StockQuantity,
+                    AverageRating = p.Reviews.Any(r => r.IsApproved)
+                        ? p.Reviews.Where(r => r.IsApproved).Average(r => r.Rating)
+                        : 0,
+                    ReviewCount = p.Reviews.Count(r => r.IsApproved)
+                })
+                .ToListAsync();
 
             var categories = await _categoryService.GetAllAsOptionsAsync();
 
@@ -78,28 +89,70 @@ namespace Liquido.Services
             };
         }
 
+        public async Task<ProductDetailsVM?> GetDetailsByIdAsync(int id)
+        {
+            var product = await _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Reviews)
+                    .ThenInclude(r => r.User)
+                .FirstOrDefaultAsync(p => p.Id == id && p.IsActive);
+
+            if (product is null) return null;
+
+            var approved = product.Reviews
+                                  .Where(r => r.IsApproved)
+                                  .ToList();
+
+            return new ProductDetailsVM
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                Volume = product.Volume,
+                ImageUrl = product.ImageUrl,
+                CategoryName = product.Category.Name,
+                CategoryId = product.CategoryId,
+                StockQuantity = product.StockQuantity,
+                AverageRating = approved.Any()
+                    ? approved.Average(r => r.Rating)
+                    : 0,
+                Reviews = approved.Select(r => new ReviewsVM
+                {
+                    Id = r.Id,
+                    UserName = $"{r.User.FirstName} {r.User.LastName}",
+                    Rating = r.Rating,
+                    Comment = r.Comment,
+                    CreatedAt = r.CreatedAt
+                })
+            };
+        }
+
         public async Task<IEnumerable<ProductVM>> GetFeaturedAsync(int count = 6)
-       => await _context.Products
-           .Include(p => p.Category)
-           .Include(p => p.Reviews)
-           .Where(p => p.IsActive && p.IsFeatured)
-           .Take(count)
-           .Select(p => new ProductVM
-           {
-               Id = p.Id,
-               Name = p.Name,
-               Price = p.Price,
-               Volume = p.Volume,
-               ImageUrl = p.ImageUrl,
-               CategoryName = p.Category.Name,
-               StockQuantity = p.StockQuantity,
-               AverageRating = p.Reviews.Any(r => r.IsApproved)
-                   ? p.Reviews.Where(r => r.IsApproved)
-                              .Average(r => r.Rating)
-                   : 0,
-               ReviewCount = p.Reviews.Count(r => r.IsApproved)
-           })
-           .ToListAsync();
+        {
+            var result = await _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Reviews)
+                .Where(p => p.IsActive && p.IsFeatured)
+                .Take(count)
+                .Select(p => new ProductVM
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    Volume = p.Volume,
+                    ImageUrl = p.ImageUrl,
+                    CategoryName = p.Category.Name,
+                    StockQuantity = p.StockQuantity,
+                    AverageRating = p.Reviews.Any(r => r.IsApproved)
+                        ? p.Reviews.Where(r => r.IsApproved).Average(r => r.Rating)
+                        : 0,
+                    ReviewCount = p.Reviews.Count(r => r.IsApproved)
+                })
+                .ToListAsync();
+
+            return result ?? new List<ProductVM>();
+        }
 
         public async Task<int> CreateAsync(ProductFormVM model)
         {
@@ -111,7 +164,7 @@ namespace Liquido.Services
                 StockQuantity = model.StockQuantity,
                 Volume = model.Volume,
                 CategoryId = model.CategoryId,
-                IsActive = model.ISActive,
+                IsActive = model.IsActive,
                 IsFeatured = model.IsFeatured,
                 ImageUrl = model.ExistingImageUrl
             };
@@ -132,7 +185,7 @@ namespace Liquido.Services
             product.StockQuantity = model.StockQuantity;
             product.Volume = model.Volume;
             product.CategoryId = model.CategoryId;
-            product.IsActive = model.ISActive;
+            product.IsActive = model.IsActive;
             product.IsFeatured = model.IsFeatured;
 
             if (model.ExistingImageUrl is not null)
@@ -146,7 +199,6 @@ namespace Liquido.Services
             var product = await _context.Products.FindAsync(id)
                 ?? throw new KeyNotFoundException($"Product {id} not found");
 
-           
             product.IsActive = false;
             await _context.SaveChangesAsync();
         }
@@ -173,13 +225,13 @@ namespace Liquido.Services
                 model.StockQuantity = product.StockQuantity;
                 model.Volume = product.Volume;
                 model.CategoryId = product.CategoryId;
-                model.ISActive = product.IsActive;
+                model.IsActive = product.IsActive;
                 model.IsFeatured = product.IsFeatured;
                 model.ExistingImageUrl = product.ImageUrl;
             }
 
             return model;
         }
+        
     }
 }
-
