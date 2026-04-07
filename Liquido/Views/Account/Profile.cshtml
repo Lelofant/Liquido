@@ -1,0 +1,148 @@
+﻿@model Liquido.ViewModels.Account.ProfileVM
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+
+            <!-- Left: Stats sidebar -->
+            <div class="col-lg-3">
+                <div class="card border-0 shadow-sm rounded-liquido p-4 text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-person-circle"
+                           style="font-size:4rem; color:var(--liquido-blue);"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0">
+                        @Model.FirstName @Model.LastName
+                    </h5>
+                    <small class="text-muted">@Model.Email</small>
+
+                    <hr />
+
+                    <div class="d-flex justify-content-around">
+                        <div class="text-center">
+                            <div class="fw-bold fs-5"
+                                 style="color:var(--liquido-blue);">
+                                @Model.LoyaltyPoints
+                            </div>
+                            <small class="text-muted">Points</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="fw-bold fs-5"
+                                 style="color:var(--liquido-blue);">
+                                @Model.TotalOrders
+                            </div>
+                            <small class="text-muted">Orders</small>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <small class="text-muted">
+                        Member since<br />
+                        <strong>@Model.RegisteredAt.ToString("MMM yyyy")</strong>
+                    </small>
+
+                    <div class="mt-3">
+                        <a asp-controller="Orders"
+                           asp-action="MyOrders"
+                           class="btn btn-outline-primary btn-sm w-100">
+                            <i class="bi bi-bag me-1"></i>My Orders
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Edit form -->
+            <div class="col-lg-9">
+                <div class="card border-0 shadow-sm rounded-liquido p-4">
+
+                    <h5 class="fw-bold mb-4">
+                        <i class="bi bi-pencil-square me-2 text-primary"></i>
+                        Edit Profile
+                    </h5>
+
+                    @if (TempData["Success"] is string success)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show">
+                            <i class="bi bi-check-circle me-2"></i>@success
+                            <button type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form asp-action="Profile" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="FirstName"
+                                       class="form-label fw-semibold"></label>
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName"
+                                      class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="LastName"
+                                       class="form-label fw-semibold"></label>
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName"
+                                      class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="PhoneNumber"
+                                       class="form-label fw-semibold"></label>
+                                <input asp-for="PhoneNumber" class="form-control" />
+                                <span asp-validation-for="PhoneNumber"
+                                      class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Email</label>
+                                <input value="@Model.Email"
+                                       class="form-control"
+                                       disabled />
+                                <small class="text-muted">Email cannot be changed</small>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="Address"
+                                       class="form-label fw-semibold"></label>
+                                <input asp-for="Address"
+                                       class="form-control"
+                                       placeholder="Street, number..." />
+                                <span asp-validation-for="Address"
+                                      class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-8">
+                                <label asp-for="City"
+                                       class="form-label fw-semibold"></label>
+                                <input asp-for="City" class="form-control" />
+                                <span asp-validation-for="City"
+                                      class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="PostalCode"
+                                       class="form-label fw-semibold"></label>
+                                <input asp-for="PostalCode" class="form-control" />
+                                <span asp-validation-for="PostalCode"
+                                      class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-liquido px-4">
+                                <i class="bi bi-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
